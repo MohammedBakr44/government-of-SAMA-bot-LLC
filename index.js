@@ -26,9 +26,9 @@ client.once('ready', () => {
 	client.user.setActivity('sci!help');
 });
 
-const welcomeChannel = '752716916640055406';
+const welcomeChannel = 'CHANNEL ID';
 
-welcome(client, welcomeChannel, ['702442152512454728', '711862827521933333']);
+welcome(client, welcomeChannel, ['CHANNEL ID', 'CHANNEL ID']);
 
 client.on('message', (message) => {
 	
@@ -63,36 +63,30 @@ client.on('message', (message) => {
 	if (!message.author.bot) {
 		if (message.content.startsWith(`${prefix}ping`)) {
 			message.channel.send('Pong');
-			message.react('✅');
-			message.channel.send(`${message.author}`);
-			console.log(users);
 		}
 		if (message.content.startsWith(`${prefix}help`)) {
 			message.channel.send('Sorry, this bot is under construction');
 		}
 
-		// if(message.content.startsWith(`ts!joined`)) {
-		//	message.channel.send("Someone joined");
-		//		setTimeout(
-		//				message.embeds.forEach(embed => {
-		//				let desc = embed.description;
-		//				let randomNumber = desc.substr(0, desc.indexOf("and")).trim();
-		//				console.log(randomNumber);
-		//				message.channel.send(desc);
-		//			}), 1000)
-		//	}
-
+		// Check if the message starts with my acees(so it doesn't read all messages)
 		if (message.content.toLowerCase().startsWith('my acsess')) {
+		// Opens the data-base	
 		let db = new sqlite.Database('./users.db', sqlite.OPEN_READWRITE);
+		// SQL query to search for the column with the id of the user
 		let query = `SELECT * FROM user WHERE id = ?`;
+        // Do the search
 		db.get(query, [message.author.id], (err, row) => {
+			// Logs any errors
 			if (err) console.log(err);
+			// Store the accessCode in a regular expression so it's easier to search for
 			let code = new RegExp(`${row.code}`, 'g');
-
+			// If the id is not found in the data-base
 			if (row == undefined) {
 				message.channel.send('Something went wrong');
 				return;
 			} else {
+				// If the id is found, and the code is found, and the user agrees to the rules run the function auth
+				// else, the code is not found send a message with Check the code again.
 				if (message.content.search(code) != -1 &&
 					message.content.search(/I agree/i) != -1) {
 					auth(client, message);
@@ -104,45 +98,7 @@ client.on('message', (message) => {
 		});
 	}
 
-		if (message.content.startsWith(`${prefix}admit`)) {
-			let toAdmit = message.mentions.members.first();
-			let member = message.guild.roles.cache.find(
-				(role) => role.name === 'Member'
-			);
-			let newMember = message.guild.roles.cache.find(
-				(role) => role.name === 'NEW-MEMBER'
-			);
-			let admitted = new Discord.MessageEmbed();
-			admitted
-				.setAuthor(message.author.username, toAdmit.displayAvatarURL)
-				.setColor('RANDOM')
-				.setDescription(
-					`${toAdmit} was admitted by ${message.author.username}`
-				)
-				.setImage(toAdmit.avatarURL);
-			if (
-				message.member.roles.some(
-					(role) => role.name === 'Minor Staff Permissions'
-				) ||
-				message.member.roles.some((role) => role.name === 'Staff-Ping')
-			) {
-				toAdmit.roles.add(member);
-				toAdmit.roles.remove(newMember).catch(() => {
-					message.channel.send('Something went wrong');
-				});
-				setTimeout(() => {
-					client.channels.get('668991257170935818').send(admitted);
-				}, 4000);
-			}
-		}
 	}
-	// if(message.author.id === client.user.id) {
-	//     if(message.author.bot) {
-	//         message.channel.send(`${message.author} sent this`);
-	//         message.channel.send(`A bot sent this`);
-
-	//     }
-	// }
 });
 
 // https://tenor.com/810B.gif

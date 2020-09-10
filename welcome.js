@@ -3,30 +3,29 @@ const date = new Date();
 const sqlite = require('sqlite3').verbose();
 
 module.exports = (client, channel, targetChannels = []) => {
+	// Runs whenever a user joins
 	client.on('guildMemberAdd', (member) => {
 		let newMember = member.guild.roles.cache.find(
 			(role) => role.name === 'NEW-MEMBER'
 		);
+		// Add the role NEWMEMBER(or any other role you need to add) to any user who joins
 		member.roles.add(newMember);
+		// Generates a random number that will be added to the data-base later
 		let accessCode = utl.random(1, 1000);
 		// Database stuff
-
 		let db = new sqlite.Database('./users.db', sqlite.OPEN_READWRITE);
-		db.run(
-			'CREATE TABLE IF NOT EXISTS user(id TEXT NOT NULL, code INTEGER NOT NULL)'
-		);
+		db.run('CREATE TABLE IF NOT EXISTS user(id TEXT NOT NULL, code INTEGER NOT NULL)');
 		let query = 'SELECT * FROM user WHERE id = ?';
 		db.get(query, [member.id], (err, row) => {
 			if (err) console.log(err);
 			if (row === undefined) {
+				// Insert data if the user don't have any data
 				let insertData = db.prepare('INSERT INTO user VALUES(?, ?)');
 				insertData.run(member.id, accessCode);
 				return;
-			} else {
-				console.log(row.id, row.code);
-				return;
 			}
 		});
+		// The welcome message, it's sepcific to our server, you can change that part as you please
 		const messageContent = `Hey <@${member.id}>, welcome to **${
 			member.guild.name
 		}** 🎉🤗 ! Please read the ${utl
@@ -57,6 +56,6 @@ __Hint/Help: The rules are in: ${member.guild.channels.cache
 				}/${date.getFullYear()}`,
 			},
 		};
-		member.guild.channels.cache.get(channel).send({ embed: message });
+		utl.getChannel(member ,channel).send({ embed: message });
 	});
 };
