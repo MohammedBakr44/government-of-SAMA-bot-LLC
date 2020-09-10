@@ -90,7 +90,7 @@ client.on('message', (message) => {
 				// else, the code is not found send a message with Check the code again.
 				if (message.content.search(code) != -1 &&
 					message.content.search(/I agree/i) != -1) {
-					auth(client, message);
+					auth(message);
 					return;
 				} else {
 					message.channel.send("Check the code again");

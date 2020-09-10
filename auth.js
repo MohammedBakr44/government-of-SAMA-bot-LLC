@@ -2,7 +2,7 @@ const Discord = require('discord.js');
 const utl = require('./utilities');
 const sqlite = require('sqlite3').verbose();
 
-module.exports = (client, message) => {
+module.exports = (message) => {
 	let toAdmit = message.member;
 	// Store the roles 
 	let member = message.guild.roles.cache.find(
