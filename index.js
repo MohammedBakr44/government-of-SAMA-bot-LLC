@@ -23,6 +23,7 @@ client.once('ready', () => {
 		'./users.db',
 		sqlite.OPEN_READWRITE | sqlite.OPEN_CREATE
 	);
+	db.run('CREATE TABLE IF NOT EXISTS user(id TEXT NOT NULL, code INTEGER NOT NULL)');
 	client.user.setActivity('sci!help');
 });
 

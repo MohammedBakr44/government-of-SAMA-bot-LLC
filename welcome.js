@@ -14,7 +14,6 @@ module.exports = (client, channel, targetChannels = []) => {
 		let accessCode = utl.random(1, 1000);
 		// Database stuff
 		let db = new sqlite.Database('./users.db', sqlite.OPEN_READWRITE);
-		db.run('CREATE TABLE IF NOT EXISTS user(id TEXT NOT NULL, code INTEGER NOT NULL)');
 		let query = 'SELECT * FROM user WHERE id = ?';
 		db.get(query, [member.id], (err, row) => {
 			if (err) console.log(err);
