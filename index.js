@@ -79,8 +79,6 @@ client.on('message', (message) => {
 		db.get(query, [message.author.id], (err, row) => {
 			// Logs any errors
 			if (err) console.log(err);
-			// Store the accessCode in a regular expression so it's easier to search for
-			let code = new RegExp(`${row.code}`, 'g');
 			// If the id is not found in the data-base
 			if (row == undefined) {
 				message.channel.send('Something went wrong');
@@ -88,6 +86,7 @@ client.on('message', (message) => {
 			} else {
 				// If the id is found, and the code is found, and the user agrees to the rules run the function auth
 				// else, the code is not found send a message with Check the code again.
+				let code = new RegExp(`${row.code}`, 'g');
 				if (message.content.search(code) != -1 &&
 					message.content.search(/I agree/i) != -1) {
 					auth(message);
