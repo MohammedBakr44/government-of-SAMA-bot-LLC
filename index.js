@@ -5,6 +5,7 @@ const client = new Discord.Client();
 const http = require('http');
 const welcome = require('./welcome');
 const auth = require('./auth');
+let counter = 0;
 http.createServer((req, res) => {
 	res.writeHead(200, {
 		'Content-type': 'text/plain',
@@ -23,7 +24,9 @@ client.once('ready', () => {
 		'./users.db',
 		sqlite.OPEN_READWRITE | sqlite.OPEN_CREATE
 	);
-	db.run('CREATE TABLE IF NOT EXISTS user(id TEXT NOT NULL, code INTEGER NOT NULL)');
+	db.run(
+		'CREATE TABLE IF NOT EXISTS user(id TEXT NOT NULL, code INTEGER NOT NULL)'
+	);
 	client.user.setActivity('sci!help');
 });
 
@@ -32,8 +35,6 @@ const welcomeChannel = 'CHANNEL ID';
 welcome(client, welcomeChannel, ['CHANNEL ID', 'CHANNEL ID']);
 
 client.on('message', (message) => {
-	
-
 	if (message.author.bot != client.user.id) {
 		// Dealing with !d bump
 		try {
@@ -69,35 +70,62 @@ client.on('message', (message) => {
 			message.channel.send('Sorry, this bot is under construction');
 		}
 
+		//Get user code
+		if (message.content.startsWith(`${prefix}code`)) {
+			let db = new sqlite.Database('./users.db', sqlite.OPEN_READONLY);
+			let query = `SELECT * FROM user where id = ?`;
+
+			db.get(query, message.author.id, (err, row) => {
+				if (err) console.log(err);
+
+				if (row == undefined) {
+					message.channel.send(
+						`I can't find a code, ping staff to investigate the issue`
+					);
+				} else {
+					message.channel.send(`Your code is: ${row.code}`);
+				}
+			});
+		}
+
 		// Check if the message starts with my acees(so it doesn't read all messages)
 		if (message.content.toLowerCase().startsWith('my acsess')) {
-		// Opens the data-base	
-		let db = new sqlite.Database('./users.db', sqlite.OPEN_READWRITE);
-		// SQL query to search for the column with the id of the user
-		let query = `SELECT * FROM user WHERE id = ?`;
-        // Do the search
-		db.get(query, [message.author.id], (err, row) => {
-			// Logs any errors
-			if (err) console.log(err);
-			// If the id is not found in the data-base
-			if (row == undefined) {
-				message.channel.send('Something went wrong');
-				return;
-			} else {
-				// If the id is found, and the code is found, and the user agrees to the rules run the function auth
-				// else, the code is not found send a message with Check the code again.
-				let code = new RegExp(`${row.code}`, 'g');
-				if (message.content.search(code) != -1 &&
-					message.content.search(/I agree/i) != -1) {
-					auth(message);
+			// Opens the data-base
+			let db = new sqlite.Database('./users.db', sqlite.OPEN_READWRITE);
+			// SQL query to search for the column with the id of the user
+			let query = `SELECT * FROM user WHERE id = ?`;
+			// Do the search
+			db.get(query, [message.author.id], (err, row) => {
+				// Logs any errors
+				if (err) console.log(err);
+				// If the id is not found in the data-base
+				if (row == undefined) {
+					message.channel.send('Something went wrong');
 					return;
 				} else {
-					message.channel.send("Check the code again");
+					// If the id is found, and the code is found, and the user agrees to the rules run the function auth
+					// else, the code is not found send a message with Check the code again.
+					let code = message.content.match(/(\d+)/)[0];
+					console.log(code, row.code);
+					if (
+						code == row.code &&
+						message.content.search(/I agree/i) != -1
+					) {
+						auth(message);
+						db.run(remove, message.author.id, (err) => {
+							if (err) console.log(err);
+							console.log('Deletion done');
+							counter = 0;
+						});
+						return;
+					} else {
+						counter++;
+						console.log(counter);
+						message.channel.send('Check the code again');
+					}
 				}
-			}
-		});
-	}
-
+			});
+		}
 	}
 });
 
