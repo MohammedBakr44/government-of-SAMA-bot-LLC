@@ -41,7 +41,8 @@ __Hint/Help: The rules are in: ${member.guild.channels.cache
 			.get(targetChannels[0])
 			.toString()}__
 
-**3.** Then Type "**/join**"`;
+**3.** If you have More than five errors, run the sci!code command and use that code. \n
+If that doesn't work ping the <@&ROLE ID>`;
 		const message = {
 			color: 'RANDOM',
 			title: 'Science and Math Association Entry Procedure',
@@ -55,6 +56,9 @@ __Hint/Help: The rules are in: ${member.guild.channels.cache
 				}/${date.getFullYear()}`,
 			},
 		};
-		utl.getChannel(member ,channel).send({ embed: message });
+		utl.getChannel(member ,channel).send(
+			`<@&ROLE ID> Please Assist them in entry if they need it \n
+			 <@${member.id}> Please Read this embed:`, 
+			{ embed: message });
 	});
 };
